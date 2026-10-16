@@ -1,0 +1,47 @@
+name: Deploy DNS
+
+on:
+  push:
+    branches: [main]
+    paths: ["domains/**", "dnsconfig.js", "reserved.json", "creds.json"]
+  workflow_dispatch:
+    inputs:
+      allow_mass_delete:
+        description: "Allow deleting more than 10 records in one run"
+        type: boolean
+        default: false
+
+# One deploy at a time, in order; never cancel a push halfway.
+concurrency:
+  group: dns-deploy
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node scripts/validate.js
+      - uses: ./.github/actions/dnscontrol
+
+      - name: Preview
+        run: |
+          set -o pipefail
+          dnscontrol preview | tee preview.txt
+          deletes=$(grep -c 'DELETE' preview.txt || true)
+          echo "Records to delete: $deletes"
+          if [ "$deletes" -gt 10 ] && [ "${{ inputs.allow_mass_delete }}" != "true" ]; then
+            echo "::error::Refusing to delete $deletes records at once. Re-run this workflow by hand with allow_mass_delete if that's intended."
+            exit 1
+          fi
+
+      - name: Push to Cloudflare
+        run: dnscontrol push

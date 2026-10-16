@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "awesomeprojects.tech subdomain",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["owner", "records"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "owner": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["github"],
+      "properties": {
+        "github": { "type": "string", "description": "Your GitHub username. Must match the PR author." },
+        "email": { "type": "string", "format": "email", "description": "Optional. This repo is public." },
+        "discord": { "type": "string", "description": "Optional contact." }
+      }
+    },
+    "description": { "type": "string", "maxLength": 200 },
+    "repo": { "type": "string", "format": "uri" },
+    "records": {
+      "type": "object",
+      "additionalProperties": false,
+      "minProperties": 1,
+      "properties": {
+        "A": { "type": "array", "items": { "type": "string" }, "minItems": 1, "maxItems": 8 },
+        "AAAA": { "type": "array", "items": { "type": "string" }, "minItems": 1, "maxItems": 8 },
+        "CNAME": { "type": "string" },
+        "TXT": { "oneOf": [{ "type": "string" }, { "type": "array", "items": { "type": "string" }, "maxItems": 10 }] },
+        "MX": {
+          "type": "array", "maxItems": 5,
+          "items": { "oneOf": [
+            { "type": "string" },
+            { "type": "object", "required": ["host"], "additionalProperties": false,
+              "properties": { "host": { "type": "string" }, "priority": { "type": "integer", "minimum": 0, "maximum": 65535 } } }
+          ] }
+        }
+      }
+    }
+  }
+}

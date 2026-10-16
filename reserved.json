@@ -8,6 +8,6 @@
   "cdn", "static", "assets", "media", "files", "download", "downloads",
   "dev", "staging", "test", "beta", "preview",
   "ftp", "sftp", "ssh", "vpn", "proxy", "git", "autoconfig", "autodiscover",
-  "localhost", "example", "awesomeprojects", "github", "google", "apple", "microsoft", "paypal",
+  "localhost", "example", "awesomeprojects", "github", "apple", "microsoft", "paypal",
   "_dmarc", "_domainkey", "_acme-challenge", "_mta-sts", "mta-sts"
 ]
